@@ -3,7 +3,7 @@ class AlbumsController < ProtectedController
 
   # GET /albums
   def index
-    @albums = Album.all
+    @albums = current_user.albums.all
 
     render json: @albums
   end
@@ -15,7 +15,7 @@ class AlbumsController < ProtectedController
 
   # POST /albums
   def create
-    @album = Album.new(album_params)
+    @album = current_user.albums.build(album_params)
 
     if @album.save
       render json: @album, status: :created
@@ -41,7 +41,7 @@ class AlbumsController < ProtectedController
   private
     # Use callbacks to share common setup or constraints between actions.
     def set_album
-      @album = Album.find(params[:id])
+      @album = current_user.albums.find(params[:id])
     end
 
     # Only allow a trusted parameter "white list" through.
