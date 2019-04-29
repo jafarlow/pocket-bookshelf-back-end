@@ -27,7 +27,7 @@ class AlbumsController < ProtectedController
   # PATCH/PUT /albums/1
   def update
     if @album.update(album_params)
-      render json: @album
+      render json: current_user.albums.all
     else
       render json: @album.errors, status: :unprocessable_entity
     end
