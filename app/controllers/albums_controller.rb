@@ -36,6 +36,7 @@ class AlbumsController < ProtectedController
   # DELETE /albums/1
   def destroy
     @album.destroy
+    render json: current_user.albums.all
   end
 
   private
