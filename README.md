@@ -1,349 +1,58 @@
-Rails[![General Assembly Logo](https://camo.githubusercontent.com/1a91b05b8f4d44b5bbfb83abac2b0996d8e26c92/687474703a2f2f692e696d6775722e636f6d2f6b6538555354712e706e67)](https://generalassemb.ly/education/web-development-immersive)
-
-# rails-api-template
-
-A template for starting projects with `rails-api`. Includes authentication.
-
-At the beginning of each cohort, update the versions in [`Gemfile`](Gemfile).
-
-## Prerequisites
-
--   [rails-api-examples-walkthrough](https://git.generalassemb.ly/ga-wdi-boston/rails-api-examples-walkthrough)
-
-## Dependencies
-
-Install with `bundle install`.
-
--   [`rails-api`](https://github.com/rails-api/rails-api)
--   [`rails`](https://github.com/rails/rails)
--   [`active_model_serializers`](https://github.com/rails-api/active_model_serializers)
--   [`ruby`](https://www.ruby-lang.org/en/)
--   [`postgres`](http://www.postgresql.org)
-
-## Installation
-
-### Download Template:
-1.  [Download](../../archive/master.zip) this template.
-1.  Unzip and rename the template directory (`unzip ~/Downloads/rails-api-template-master.zip`)
-1.  Move into the new project and `git init`.
-
-### Customize Template:
-1.  Empty [`README.md`](README.md) and fill with your own content.
-1.  Rename your app module in `config/application.rb` (change
-    `RailsApiTemplate`).
-1.  Rename your project database in `config/database.yml` (change
-    `'rails-api-template'`).
-
-### Setup Environment:
-1.  Install dependencies with `bundle install`.
-1.  `git add` and `git commit` your changes.
-1.  Create a `.env` for sensitive settings (`touch .env`).
-1.  Generate new `development` and `test` secrets (`bundle exec rails secret`).
-1.  Store them in `.env` with keys `SECRET_KEY_BASE_<DEVELOPMENT|TEST>`
-    respectively.
-1.  In order to make requests to your deployed API, you will need to set
-    `SECRET_KEY_BASE` in the environment of the production API (for example, using `heroku config:set` or the Heroku dashboard).
-1.  In order to make requests from your deployed client application, you will
-    need to set `CLIENT_ORIGIN` in the environment of the production API (for example, `heroku config:set CLIENT_ORIGIN=https://<github-username>.github.io`).
-    See more about deploying to heroku [rails-heroku-setup-guide](https://git.generalassemb.ly/ga-wdi-boston/rails-heroku-setup-guide)
-
-### Setup your database:
-    - bin/rails db:drop (if it already exists)
-    - bin/rails db:create
-    - bin/rails db:migrate
-    - bin/rails db:seed
-    - bin/rails db:examples
-
-  Note: Remember to follow the same commands when setting up your deployed database!
-
-### Run your server!
-1. Run the API server with `bin/rails server` or `bundle exec rails server`.
-
-## Structure
-
-This template follows the standard project structure in Rails.
-
-`curl` command scripts are stored in [`curl-scripts`](curl-scripts) with names that
-correspond to API actions.
-
-User authentication is built-in.
-
-## Tasks
-
-Developers should run these often!
-
--   `bin/rails routes` lists the endpoints available in your API.
--   `bin/rspec spec` runs automated tests.
--   `bin/rails console` opens a REPL that pre-loads the API.
--   `bin/rails db` opens your database client and loads the correct database.
--   `bin/rails server` starts the API.
--   `curl-scripts/*.sh` run various `curl` commands to test the API. See below.
-
-## API
-
-Use this as the basis for your own API documentation. Add a new third-level
-heading for your custom entities, and follow the pattern provided for the
-built-in user authentication documentation.
-
-Scripts are included in [`curl-scripts`](curl-scripts) to test built-in actions. Add your
-own scripts to test your custom API. As an alternative, you can write automated
-tests in RSpec to test your API.
-
-### Authentication
-
-| Verb   | URI Pattern            | Controller#Action |
-|--------|------------------------|-------------------|
-| POST   | `/sign-up`             | `users#signup`    |
-| POST   | `/sign-in`             | `users#signin`    |
-| PATCH  | `/change-password`     | `users#changepw`  |
-| DELETE | `/sign-out`        | `users#signout`   |
-
-#### POST /sign-up
-
-Request:
-
-```sh
-curl http://localhost:4741/sign-up \
-  --include \
-  --request POST \
-  --header "Content-Type: application/json" \
-  --data '{
-    "credentials": {
-      "email": "'"${EMAIL}"'",
-      "password": "'"${PASSWORD}"'",
-      "password_confirmation": "'"${PASSWORD}"'"
-    }
-  }'
-```
-
-```sh
-EMAIL=ava@bob.com PASSWORD=hannah curl-scripts/auth/sign-up.sh
-```
-
-Response:
-
-```md
-HTTP/1.1 201 Created
-Content-Type: application/json; charset=utf-8
-
-{
-  "user": {
-    "id": 1,
-    "email": "ava@bob.com"
-  }
-}
-```
-
-#### POST /sign-in
-
-Request:
-
-```sh
-curl http://localhost:4741/sign-in \
-  --include \
-  --request POST \
-  --header "Content-Type: application/json" \
-  --data '{
-    "credentials": {
-      "email": "'"${EMAIL}"'",
-      "password": "'"${PASSWORD}"'"
-    }
-  }'
-```
-
-```sh
-EMAIL=ava@bob.com PASSWORD=hannah curl-scripts/auth/sign-in.sh
-```
-
-Response:
-
-```md
-HTTP/1.1 200 OK
-Content-Type: application/json; charset=utf-8
-
-{
-  "user": {
-    "id": 1,
-    "email": "ava@bob.com",
-    "token": "BAhJIiVlZDIwZTMzMzQzODg5NTBmYjZlNjRlZDZlNzYxYzU2ZAY6BkVG--7e7f77f974edcf5e4887b56918f34cd9fe293b9f"
-  }
-}
-```
-
-#### PATCH /change-password
-
-Request:
-
-```sh
-curl --include --request PATCH "http://localhost:4741/change-password" \
-  --header "Authorization: Token token=$TOKEN" \
-  --header "Content-Type: application/json" \
-  --data '{
-    "passwords": {
-      "old": "'"${OLDPW}"'",
-      "new": "'"${NEWPW}"'"
-    }
-  }'
-```
-
-```sh
-OLDPW='hannah' NEWPW='elle' TOKEN='BAhJIiVlZDIwZTMzMzQzODg5NTBmYjZlNjRlZDZlNzYxYzU2ZAY6BkVG--7e7f77f974edcf5e4887b56918f34cd9fe293b9f' sh curl-scripts/auth/change-password.sh
-```
-
-Response:
-
-```md
-HTTP/1.1 204 No Content
-```
-
-#### DELETE /sign-out
-
-Request:
-
-```sh
-curl http://localhost:4741/sign-out \
-  --include \
-  --request DELETE \
-  --header "Authorization: Token token=$TOKEN"
-```
-
-```sh
-TOKEN='BAhJIiVlZDIwZTMzMzQzODg5NTBmYjZlNjRlZDZlNzYxYzU2ZAY6BkVG--7e7f77f974edcf5e4887b56918f34cd9fe293b9f' sh curl-scripts/auth/sign-out.sh
-```
-
-Response:
-
-```md
-HTTP/1.1 204 No Content
-```
-
-### Users
-
-| Verb | URI Pattern | Controller#Action |
-|------|-------------|-------------------|
-| GET  | `/users`    | `users#index`     |
-| GET  | `/users/1`  | `users#show`      |
-| PATCH| `/users/1`  | `users#update`    |
-
-#### GET /users
-
-Request:
-
-```sh
-curl http://localhost:4741/users \
-  --include \
-  --request GET \
-  --header "Authorization: Token token=$TOKEN"
-```
-
-```sh
-TOKEN=BAhJIiVlZDIwZTMzMzQzODg5NTBmYjZlNjRlZDZlNzYxYzU2ZAY6BkVG--7e7f77f974edcf5e4887b56918f34cd9fe293b9f curl-scripts/users.sh
-```
-
-Response:
-
-```md
-HTTP/1.1 200 OK
-Content-Type: application/json; charset=utf-8
-
-{
-  "users": [
-    {
-      "id": 2,
-      "email": "bob@ava.com"
-    },
-    {
-      "id": 1,
-      "email": "ava@bob.com"
-    }
-  ]
-}
-```
-
-#### GET /users/:id
-
-Request:
-
-```sh
-curl --include --request GET http://localhost:4741/users/$ID \
-  --header "Authorization: Token token=$TOKEN"
-```
-
-```sh
-ID=2 TOKEN=BAhJIiVlZDIwZTMzMzQzODg5NTBmYjZlNjRlZDZlNzYxYzU2ZAY6BkVG--7e7f77f974edcf5e4887b56918f34cd9fe293b9f curl-scripts/user.sh
-```
-
-Response:
-
-```md
-HTTP/1.1 200 OK
-Content-Type: application/json; charset=utf-8
-
-{
-  "user": {
-    "id": 2,
-    "email": "bob@ava.com"
-  }
-}
-```
-
-#### PATCH /users/:id
-
-Request:
-
-```sh
-curl "http://localhost:4741/users/${ID}" \
-  --include \
-  --request PATCH \
-  --header "Authorization: Token token=${TOKEN}" \
-  --header "Content-Type: application/json" \
-  --data '{
-    "user": {
-      "email": "'"${EMAIL}"'"
-    }
-  }'
-```
-
-```sh
-ID=1 TOKEN="BAhJIiU1NGNlYjRmMjBhM2NkZTZiNzk1MGNiYmZiYWMyY2U4MwY6BkVG--ddb1e16af0e05921aa56d771e4a2f816f2a1d46e"
-EMAIL=mike@m
-sh curl-scripts/users/user-update.sh
-```
-
-Response:
-
-```md
-HTTP/1.1 200 OK
-Content-Type: application/json; charset=utf-8
-
-{"user":{"id":1,"email":"mike@m"}}
-```
-
-### Reset Database without dropping
-
-This is not a task developers should run often, but it is sometimes necessary.
-
-**locally**
-
-```sh
-bin/rails db:migrate VERSION=0
-bin/rails db:migrate db:seed db:examples
-```
-
-**heroku**
-
-```sh
-heroku run rails db:migrate VERSION=0
-heroku run rails db:migrate db:seed db:examples
-```
-
-## Additional Resources
-- [rails-heroku-setup-guide](https://git.generalassemb.ly/ga-wdi-boston/rails-heroku-setup-guide)
-- http://guides.rubyonrails.org/api_app.html
-- https://blog.codeship.com/building-a-json-api-with-rails-5/
-
-## [License](LICENSE)
-
-1.  All content is licensed under a CC­BY­NC­SA 4.0 license.
-1.  All software code is licensed under GNU GPLv3. For commercial use or
-    alternative licensing, please contact legal@ga.co.
+LINKS
+Github Front-end repo: https://github.com/jafarlow/album-library-front-end
+Github Back-end repo: https://github.com/jafarlow/album-library-back-end
+Deployed app: https://jafarlow.github.io/album-library-front-end/
+Deployed Heroku: https://intense-fortress-15001.herokuapp.com/
+Entity Relationship Diagram: https://imgur.com/IVOt1rl
+
+USER STORIES
+As a user I want to register on the website and signin
+As a user I want to be able to log out of the website
+As a user I want to be able to change my password
+As a user I want to add an album to my collection
+As a user I want to see my collection
+As a user I want to be able to update an item in my collection
+As a user I want to be able to delete an item from my collection
+
+OVERVIEW OF THE APP
+This app is essentially a library builder for users to catalogue their record
+collection. Upon page load, the user is met with a login/register request.
+Registration does not automatically log in, so the user will need to do that
+upon registering. Once logged in, the view changes and the user sees four buttons:
+Sign out, Change password, My collection, and Add album. Sign out brings the
+user back to the initial view. Change password shows two input fields that will
+collapse when the button is clicked again. My collection shows the current list
+of albums as user has added. These albums are themselves clickable, which
+expands a field showing Update and Remove buttons. The Update button pops up a
+modal form, the Remove button clears the item from the list and refreshes the
+list. Clicking again on the album will collapse and hide the buttons. Add album
+displays an entry form for album title and artist.
+
+TECHNOLOGY USED
+HTML, CSS, Bootstrap, Handlebars, JavaScript, Ruby, Rails, Google Fonts
+
+FUTURE OF THE APP
+There are a handful of things which I have as yet been unable to accomplish.
+Primarily I want to implement a thrid party API from Wikipedia to perform a
+lookup for each album a user has added to their collection. This would at least
+populate release date and genre fields. I may also try an pull in the album cover
+art and have that displayed somewhere. This information which would be pulled
+from Wikipedia would be displayed in the same collapsed section as the Update and
+Remove buttons.
+
+PLANNING AND DEVELOPMENT PROCESS
+I started out thinking big-picture, and I frequently needed to reel myself in
+to just focus on the here-and-now. I would ask myself, "What needs to be done now
+in order to implement the next piece?" I broke down my code objectives into a
+schedule that I followed quite closely:
+1) HTML & CSS skeleton
+2) Ruby/Rails database building and functionality
+3) JS authorization
+4) JS user actions
+5) Refine HTML & CSS
+6) Deploy
+There was a lot of debugging and more than a handful of roadblocks. Were I not
+bald I would describe some of these as hair-pulling problems. To overcome these
+impediments I relied on Google, related tech docs, the issue queue, and my
+fellow classmates for advice, hints, and suggestions. They were invaluable to me
+completing this on time.
